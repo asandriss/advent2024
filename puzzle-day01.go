@@ -46,7 +46,7 @@ func similarityScore(first, second []int) {
 		total += elem * counts[elem]
 	}
 
-	fmt.Printf("Similarity score is %v", total)
+	fmt.Println("Similarity score is", total)
 }
 
 func countElements(arr []int) map[int]int {

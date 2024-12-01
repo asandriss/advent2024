@@ -1,3 +1,8 @@
+# Ignore all files except the ones with an extension
+# This is to avoid executables created by go being added
+*
+!/**/
+!*.*
 # Created by https://www.toptal.com/developers/gitignore/api/go
 # Edit at https://www.toptal.com/developers/gitignore?templates=go
 
