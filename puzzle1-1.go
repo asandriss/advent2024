@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -26,8 +26,8 @@ func main() {
 		return
 	}
 
-	slices.Sort(first)
-	slices.Sort(second)
+	sort.Ints(first)
+	sort.Ints(second)
 
 	runningTotal := 0
 	for i := 0; i < len(first); i++ {
@@ -45,8 +45,9 @@ func parseFile(file *os.File) ([]int, []int, error) {
 		line := scanner.Text()
 		fields := strings.Fields(line)
 
-		if len(fields) != 2 {
-			return nil, nil, fmt.Errorf("invalid line format: %s", line)
+		if len(fields) < 2 {
+			continue
+			// return nil, nil, fmt.Errorf("invalid line format: %s", line)
 		}
 
 		left, err1 := strconv.Atoi(fields[0])
