@@ -10,8 +10,10 @@ import (
 	"strings"
 )
 
+const FileName = "puzzle1-1.input.txt"
+
 func main() {
-	file, err := os.Open("puzzle1-1.input.txt")
+	file, err := os.Open(FileName)
 	if err != nil {
 		fmt.Println("error opening file", err)
 		return
@@ -31,6 +33,34 @@ func main() {
 
 	// solve puzzle 1
 	runningTotal(first, second)
+
+	// solve puzzle 2
+	similarityScore(first, second)
+}
+
+func similarityScore(first, second []int) {
+	counts := countElements(second)
+	total := 0
+
+	for _, elem := range first {
+		total += elem * counts[elem]
+	}
+
+	fmt.Printf("Similarity score is %v", total)
+}
+
+func countElements(arr []int) map[int]int {
+	result := make(map[int]int)
+
+	for _, elem := range arr {
+		if _, exists := result[elem]; exists {
+			result[elem]++
+		} else {
+			result[elem] = 1
+		}
+	}
+
+	return result
 }
 
 func runningTotal(first, second []int) {
