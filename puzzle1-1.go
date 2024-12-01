@@ -29,6 +29,11 @@ func main() {
 	sort.Ints(first)
 	sort.Ints(second)
 
+	// solve puzzle 1
+	runningTotal(first, second)
+}
+
+func runningTotal(first, second []int) {
 	runningTotal := 0
 	for i := 0; i < len(first); i++ {
 		runningTotal += int(math.Abs(float64(first[i] - second[i])))
@@ -47,7 +52,6 @@ func parseFile(file *os.File) ([]int, []int, error) {
 
 		if len(fields) < 2 {
 			continue
-			// return nil, nil, fmt.Errorf("invalid line format: %s", line)
 		}
 
 		left, err1 := strconv.Atoi(fields[0])
