@@ -19,23 +19,11 @@ func main() {
 
 	defer file.Close()
 
-	var first []int
-	var second []int
+	first, second, err := parseFile(file)
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		strings := strings.Fields(line)
-
-		if len(strings) == 0 {
-			break
-		}
-
-		no1, _ := strconv.Atoi(strings[0])
-		no2, _ := strconv.Atoi(strings[1])
-
-		first = append(first, no1)
-		second = append(second, no2)
+	if err != nil {
+		fmt.Println("Error parsing the file:", err)
+		return
 	}
 
 	slices.Sort(first)
@@ -47,4 +35,34 @@ func main() {
 	}
 
 	fmt.Println("Running total", runningTotal)
+}
+
+func parseFile(file *os.File) ([]int, []int, error) {
+	var first, second []int
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fields := strings.Fields(line)
+
+		if len(fields) != 2 {
+			return nil, nil, fmt.Errorf("invalid line format: %s", line)
+		}
+
+		left, err1 := strconv.Atoi(fields[0])
+		right, err2 := strconv.Atoi(fields[1])
+
+		if err1 != nil || err2 != nil {
+			return nil, nil, fmt.Errorf("line %s contains an invalid number", line)
+		}
+
+		first = append(first, left)
+		second = append(second, right)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, nil, fmt.Errorf("error while reading the file %w", err)
+	}
+
+	return first, second, nil
 }
