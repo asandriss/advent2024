@@ -28,16 +28,21 @@ func main() {
 		return
 	}
 
-	numSafeLines := getSafeLineCount(data)
+	// Puzzle 1
+	numSafeLines := getSafeLineCount(data, false)
 
 	fmt.Printf("total number of safe lines is [ %d ]", numSafeLines)
+
+	// puzzle 2
+	numSafeLines = getSafeLineCount(data, true)
+	fmt.Printf("total number of safe lines after damppening is [%d]", numSafeLines)
 }
 
-func getSafeLineCount(data [][]int) int {
+func getSafeLineCount(data [][]int, dampen bool) int {
 	result := 0
 
 	for _, line := range data {
-		isSafe := isSafeLine(line)
+		isSafe := dampenSafeCheck(line, dampen)
 		if isSafe {
 			result++
 		}
@@ -46,11 +51,40 @@ func getSafeLineCount(data [][]int) int {
 	return result
 }
 
+func dampenSafeCheck(line []int, dampen bool) bool {
+	if !dampen {
+		return isSafeLine(line)
+	}
+
+	isSafe := isSafeLine(line)
+	if isSafe {
+		return true
+	}
+
+	fmt.Println("Line is not safe, try damppening it", line)
+
+	// line is not safe, try removing with removing items
+	for i := 0; i < len(line); i++ {
+		subarray := make([]int, 0, len(line)-1)
+		subarray = append(subarray, line[:i]...)
+		subarray = append(subarray, line[i+1:]...)
+
+		fmt.Printf("Trying Subarray (skipping index %d): %v\n", i, subarray)
+		if isSafeLine(subarray) {
+			fmt.Printf("Subarray was SAFE: %v\n", subarray)
+			return true
+		}
+	}
+
+	fmt.Println("NO SAFE Subarray FOUND")
+
+	return false
+}
+
 func isSafeLine(line []int) bool {
 	// Line is "safe" if it's all lines are either in ascending or descending order
 	//   and any neibouring values differ by at least one and at most 3
 	if len(line) < 2 {
-		fmt.Println("Line is SAFE due to LEN < 2", line)
 		return true
 	}
 
@@ -58,16 +92,10 @@ func isSafeLine(line []int) bool {
 
 	// check first two elements to decide if the order is ascending or not
 	if first == second || math.Abs(float64(first-second)) > 3.0 {
-		fmt.Println("Line is NOT safe due to first/second check", line)
 		return false
 	}
 
 	ascending := first < second
-	if ascending {
-		fmt.Println("Line IS ASCENDING", line)
-	} else {
-		fmt.Println("Line IS NOT Ascending", line)
-	}
 
 	// loop starts from the second element
 	for i := 1; i < len(line); i++ {
@@ -75,17 +103,14 @@ func isSafeLine(line []int) bool {
 
 		// check diff first
 		if diff == 0 || math.Abs(float64(diff)) > 3.0 {
-			fmt.Printf("Line is NOT SAFE due to DIFF check at %d and %d, %v\n", line[i], line[i-1], line)
 			return false
 		}
 
 		if (ascending && diff < 0) || (!ascending && diff > 0) {
-			fmt.Printf("Line is NOT SAFE due to ORDER check at %d and %d, %v\n", line[i], line[i-1], line)
 			return false
 		}
 	}
 
-	fmt.Println("Line is SAFE", line)
 	return true
 }
 
