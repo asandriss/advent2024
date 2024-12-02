@@ -28,16 +28,16 @@ func main() {
 		return
 	}
 
-	numSafeLines := getSafeLineCount(data)
+	numSafeLines := getSafeLineCount(data, false)
 
 	fmt.Printf("total number of safe lines is [ %d ]", numSafeLines)
 }
 
-func getSafeLineCount(data [][]int) int {
+func getSafeLineCount(data [][]int, applyDampen bool) int {
 	result := 0
 
 	for _, line := range data {
-		isSafe := isSafeLine(line)
+		isSafe := isSafeLine(line, applyDampen)
 		if isSafe {
 			result++
 		}
@@ -46,11 +46,14 @@ func getSafeLineCount(data [][]int) int {
 	return result
 }
 
-func isSafeLine(line []int) bool {
+func isSafeLine(line []int, applyDampen bool) bool {
+	dampenUsed := false
+	if !applyDampen {
+		dampenUsed = true // use dampen immidiatelly if not in use
+	}
 	// Line is "safe" if it's all lines are either in ascending or descending order
 	//   and any neibouring values differ by at least one and at most 3
 	if len(line) < 2 {
-		fmt.Println("Line is SAFE due to LEN < 2", line)
 		return true
 	}
 
@@ -58,16 +61,14 @@ func isSafeLine(line []int) bool {
 
 	// check first two elements to decide if the order is ascending or not
 	if first == second || math.Abs(float64(first-second)) > 3.0 {
-		fmt.Println("Line is NOT safe due to first/second check", line)
-		return false
+		if dampenUsed {
+			return false
+		} else {
+			dampenUsed = true
+		}
 	}
 
 	ascending := first < second
-	if ascending {
-		fmt.Println("Line IS ASCENDING", line)
-	} else {
-		fmt.Println("Line IS NOT Ascending", line)
-	}
 
 	// loop starts from the second element
 	for i := 1; i < len(line); i++ {
@@ -75,13 +76,22 @@ func isSafeLine(line []int) bool {
 
 		// check diff first
 		if diff == 0 || math.Abs(float64(diff)) > 3.0 {
-			fmt.Printf("Line is NOT SAFE due to DIFF check at %d and %d, %v\n", line[i], line[i-1], line)
-			return false
+			if dampenUsed {
+				return false
+			} else {
+				dampenUsed = true
+			}
 		}
 
+		// then check order (asc/desc check) of elements
 		if (ascending && diff < 0) || (!ascending && diff > 0) {
 			fmt.Printf("Line is NOT SAFE due to ORDER check at %d and %d, %v\n", line[i], line[i-1], line)
-			return false
+
+			if dampenUsed {
+				return false
+			} else {
+				dampenUsed = true
+			}
 		}
 	}
 
