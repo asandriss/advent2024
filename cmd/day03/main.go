@@ -20,18 +20,23 @@ func main() {
 	defer file.Close()
 
 	fullContent := getFileContent(file)
-	_, _ = splitByCommand(fullContent[0])
-
-	// fmt.Println("content of the file", fullContent)
-	validContent, _ := regexFilter(fullContent, `mul\(\s*\d+\s*,\s*\d+\s*\)`)
-	// fmt.Println("matches", validContent)
 	runningSum := 0
-	for _, el := range validContent {
-		mul, _ := getMultiplication(el)
-		runningSum += mul
-	}
 
+	for _, el := range fullContent {
+		commands, _ := splitByCommand(el)
+
+		validContent, _ := regexFilter(commands, `mul\(\s*\d+\s*,\s*\d+\s*\)`)
+		for _, el := range validContent {
+			mul, _ := getMultiplication(el)
+			runningSum += mul
+		}
+
+	}
 	fmt.Println("Total multiplications is ", runningSum)
+}
+
+func processCommand(cmd string) {
+
 }
 
 func splitByCommand(text string) ([]string, error) {
@@ -43,12 +48,25 @@ func splitByCommand(text string) ([]string, error) {
 		return nil, fmt.Errorf("error while building regex %w", err)
 	}
 
-	parts := re.Split(text, -1)
+	matches := re.FindAllStringIndex(text, -1)
+	var parts []string
 
-	for _, el := range parts {
-		fmt.Println("PART ", el)
+	prev := 0
+	for _, match := range matches {
+		if len(match) < 2 {
+			continue // ignore empty
+		}
+
+		start, end := match[0], match[1]
+
+		if start > prev && text[start:end] != "don't()" {
+			parts = append(parts, text[prev:start])
+		}
+
+		// parts = append(parts, text[start:end])
+		prev = end
+
 	}
-
 	return parts, nil
 }
 
