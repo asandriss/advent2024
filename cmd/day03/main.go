@@ -35,10 +35,6 @@ func main() {
 	fmt.Println("Total multiplications is ", runningSum)
 }
 
-func processCommand(cmd string) {
-
-}
-
 func splitByCommand(text string) ([]string, error) {
 	pattern := `(do\(\)|don't\(\))`
 
@@ -50,6 +46,7 @@ func splitByCommand(text string) ([]string, error) {
 
 	matches := re.FindAllStringIndex(text, -1)
 	var parts []string
+	inDoBlock := true // assume the do() block for first line
 
 	prev := 0
 	for _, match := range matches {
@@ -59,13 +56,12 @@ func splitByCommand(text string) ([]string, error) {
 
 		start, end := match[0], match[1]
 
-		if start > prev && text[start:end] != "don't()" {
+		if inDoBlock && start > prev {
 			parts = append(parts, text[prev:start])
 		}
-
-		// parts = append(parts, text[start:end])
 		prev = end
-
+		// parts = append(parts, text[start:end])
+		inDoBlock = (text[start:end] == "do()")
 	}
 	return parts, nil
 }
