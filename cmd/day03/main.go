@@ -20,22 +20,31 @@ func main() {
 	defer file.Close()
 
 	fullContent := getFileContent(file)
+	runningSum := solve(fullContent)
+
+	fmt.Println("Total multiplications is ", runningSum)
+}
+
+func solve(fullContent []string) int {
+
 	runningSum := 0
 
 	for _, el := range fullContent {
-		commands, _ := splitByCommand(el)
+		doCommands, _ := filterDosAndDonts(el)
+		// fmt.Println("filtered do commands ", doCommands)
 
-		validContent, _ := regexFilter(commands, `mul\(\s*\d+\s*,\s*\d+\s*\)`)
-		for _, el := range validContent {
-			mul, _ := getMultiplication(el)
+		mulCommands, _ := regexFilter(doCommands, `mul\(\s*\d+\s*,\s*\d+\s*\)`)
+		for _, mulCmd := range mulCommands {
+			mul, _ := getMultiplication(mulCmd)
 			runningSum += mul
 		}
 
 	}
-	fmt.Println("Total multiplications is ", runningSum)
+
+	return runningSum
 }
 
-func splitByCommand(text string) ([]string, error) {
+func filterDosAndDonts(text string) ([]string, error) {
 	pattern := `(do\(\)|don't\(\))`
 
 	re, err := regexp.Compile(pattern)
@@ -45,6 +54,7 @@ func splitByCommand(text string) ([]string, error) {
 	}
 
 	matches := re.FindAllStringIndex(text, -1)
+
 	var parts []string
 	inDoBlock := true // assume the do() block for first line
 
@@ -57,11 +67,17 @@ func splitByCommand(text string) ([]string, error) {
 		start, end := match[0], match[1]
 
 		if inDoBlock && start > prev {
-			parts = append(parts, text[prev:start])
+			matchedText := text[prev:start]
+
+			parts = append(parts, matchedText)
 		}
 		prev = end
-		// parts = append(parts, text[start:end])
+
 		inDoBlock = (text[start:end] == "do()")
+	}
+	if inDoBlock && prev < len(text) {
+		remainingText := text[prev:]
+		parts = append(parts, remainingText)
 	}
 	return parts, nil
 }
