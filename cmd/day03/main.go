@@ -30,10 +30,10 @@ func solve(fullContent []string) int {
 	runningSum := 0
 
 	for _, el := range fullContent {
-		doCommands, _ := filterDosAndDonts(el)
-		// fmt.Println("filtered do commands ", doCommands)
+		doBlocks, _ := filterDosAndDonts(el)
+		// fmt.Println("filtered do commands ", doBlocks)
 
-		mulCommands, _ := regexFilter(doCommands, `mul\(\s*\d+\s*,\s*\d+\s*\)`)
+		mulCommands, _ := regexFilter(doBlocks, `mul\(\s*\d+\s*,\s*\d+\s*\)`)
 		for _, mulCmd := range mulCommands {
 			mul, _ := getMultiplication(mulCmd)
 			runningSum += mul
